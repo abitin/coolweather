@@ -1,13 +1,16 @@
 package com.coolweather.app.activity;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -16,7 +19,7 @@ import com.coolweather.app.util.HttpUtil;
 import com.coolweather.app.util.Utility;
 import com.example.coolweather.R;
 
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements OnClickListener{
 	
 	private LinearLayout weatherInfoLayout;
 	private TextView cityNameText;
@@ -26,6 +29,9 @@ public class WeatherActivity extends Activity {
 	private TextView temp2Text;
 	
 	private TextView currentDateText;
+	
+	private Button switchCity;
+	private Button refreshWeather;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -42,17 +48,49 @@ public class WeatherActivity extends Activity {
 		temp2Text=(TextView) findViewById(R.id.temp2);
 		currentDateText=(TextView) findViewById(R.id.current_date);
 		
+		switchCity=(Button) findViewById(R.id.switch_city);
+		refreshWeather=(Button) findViewById(R.id.refresh_weather);
+		
+		switchCity.setOnClickListener(this);
+		refreshWeather.setOnClickListener(this);
+		
 		String countyCode=getIntent().getStringExtra("county_code");
 		Log.d("WeatherActivity", "县级代码："+countyCode);
 		if(!TextUtils.isEmpty(countyCode)){
 			publishText.setText("同步中...");
 			weatherInfoLayout.setVisibility(View.INVISIBLE);
-			cityNameText.setVisibility(View.VISIBLE);
+			cityNameText.setVisibility(View.INVISIBLE);
+			
 			queryWeatherCode(countyCode);
+			Log.d("WeatherActivity", "查询天气代码");
 		}else{
 			showWeather();
 		}
 	}
+	
+	@Override
+	public void onClick(View v) {
+		switch(v.getId()){
+		case R.id.switch_city:
+			Intent intent=new Intent(this,ChooseAreaActivity.class);
+			intent.putExtra("from_weather", true);
+			startActivity(intent);
+			finish();
+			break;
+		case R.id.refresh_weather:
+			publishText.setText("同步中...");
+			SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(this);
+			String weatherCode=prefs.getString("weather_code", "");
+			
+			if(!TextUtils.isEmpty(weatherCode)){
+				queryWeatherInfo(weatherCode);
+			}
+			break;
+			default:break;
+		}
+		
+	}
+
 
 	private void queryWeatherCode(String countyCode) {
 		String address="http://www.weather.com.cn/data/list3/city"+countyCode+".xml";
@@ -79,10 +117,13 @@ public class WeatherActivity extends Activity {
 							String weatherCode=array[1];
 							Log.d("WeatherActivity","天气代码为： "+weatherCode);
 							queryWeatherInfo(weatherCode);
+							
+							Log.d("WeatherActivity", "查询天气代码对应的信息");
 						}
 					}
 				}else if("weatherCode".equals(type)){
 					Utility.handleWeatherResponse(WeatherActivity.this, response);
+					Log.d("WeatherActivity","天气数据解析并保存 ");
 					runOnUiThread(new Runnable(){
 
 						@Override
@@ -122,7 +163,7 @@ public class WeatherActivity extends Activity {
 		cityNameText.setText(prefs.getString("city_name", ""));
 		temp1Text.setText(prefs.getString("temp1", ""));
 		temp2Text.setText(prefs.getString("temp2", ""));
-		weatherDespText.setText(prefs.getString("weatherDesp", ""));
+		weatherDespText.setText(prefs.getString("weather_Desp", ""));
 		publishText.setText("今天"+prefs.getString("publish_time", "")+"发布");
 		currentDateText.setText(prefs.getString("current_date", ""));
 		weatherInfoLayout.setVisibility(View.VISIBLE);
@@ -130,5 +171,6 @@ public class WeatherActivity extends Activity {
 
 	}
 
+	
 	
 }
