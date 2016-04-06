@@ -107,8 +107,9 @@ public class CoolWeatherDB {
 		
 		if(county!=null){
 			ContentValues values=new ContentValues();
+			//错误发生在这里了！！！！code 的get方法写成name的get方法了。
 			values.put("county_name", county.getCountyName());
-			values.put("county_code", county.getCountyName());
+			values.put("county_code", county.getCountyCode());
 			values.put("city_id", county.getCityId());
 			db.insert("County", null, values);
 		}

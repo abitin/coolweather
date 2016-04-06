@@ -6,7 +6,9 @@ import java.util.List;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
@@ -52,6 +54,15 @@ public class ChooseAreaActivity extends Activity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		SharedPreferences prefs=PreferenceManager.getDefaultSharedPreferences(this);
+		if(prefs.getBoolean("city_selected", false)){
+			Intent intent=new Intent(this,WeatherActivity.class);
+			startActivity(intent);
+			finish();
+			return;
+		}
+		
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		setContentView(R.layout.choose_area);
 		
@@ -62,7 +73,7 @@ public class ChooseAreaActivity extends Activity {
 		listView.setAdapter(adapter);
 		coolWeatherDB=CoolWeatherDB.getInstance(this);
 		
-		queryProvinces();
+		
 		
 		listView.setOnItemClickListener(new OnItemClickListener(){
 
@@ -75,13 +86,20 @@ public class ChooseAreaActivity extends Activity {
 				}else if(currentLevel==LEVEL_CITY){
 					selectedCity=cityList.get(position);
 					queryCounties();
+				}else if(currentLevel==LEVEL_COUNTY){
+					String countyCode=countyList.get(position).getCountyCode();
+					Intent intent=new Intent(ChooseAreaActivity.this,WeatherActivity.class);
+					intent.putExtra("county_code", countyCode);
+					Log.d("ChooseAreaActvity", "县级代码为："+countyCode);
+					startActivity(intent);
+					finish();
 				}
 				
 			}
 			
 		});
 		
-		
+		queryProvinces();
 	}
 
 	private void queryProvinces() {
@@ -141,7 +159,7 @@ public class ChooseAreaActivity extends Activity {
 			currentLevel = LEVEL_COUNTY;
 		} else {
 			queryFromServer(selectedCity.getCityCode(), "county");
-			//出错在这儿。应该输出的是城市的代码，却输出了城市名字？
+			//出错在这儿。应该输出的是城市的代码，却输出了城市名字。。。
 			Log.d("ChooseAreaActivity", "城市代码："+selectedCity.getCityCode());
 			Log.d("ChooseAreaActivity", "城市名字："+selectedCity.getCityName());
 		}
