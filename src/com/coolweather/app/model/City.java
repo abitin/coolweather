@@ -2,34 +2,34 @@ package com.coolweather.app.model;
 
 public class City {
 	
-	private int mId;
-	private String mCityName;
-	private String mCityCode;
-	private int mProvinceId;
+	private int id;
+	private String cityName;
+	private String cityCode;
+	private int provinceId;
 	
 	public int getId() {
-		return mId;
+		return id;
 	}
 	public void setId(int id) {
-		mId = id;
+		this.id = id;
 	}
 	public String getCityName() {
-		return mCityName;
+		return cityName;
 	}
 	public void setCityName(String cityName) {
-		mCityName = cityName;
+		this.cityName = cityName;
 	}
 	public String getCityCode() {
-		return mCityCode;
+		return cityCode;
 	}
 	public void setCityCode(String cityCode) {
-		mCityCode = cityCode;
+		this.cityCode = cityCode;
 	}
 	public int getProvinceId() {
-		return mProvinceId;
+		return provinceId;
 	}
 	public void setProvinceId(int provinceId) {
-		mProvinceId = provinceId;
+		this.provinceId = provinceId;
 	}
 
 }
